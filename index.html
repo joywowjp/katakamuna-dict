@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>カタカムナ検索表（ことだま辞典）</title>
+<style>
+  :root{--bg:#0b0f14;--fg:#e6edf3;--muted:#9fb0c0;--card:#121821;--line:#1f2a36;--accent:#14b8a6}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,Roboto,"Noto Sans JP",sans-serif}
+  header{max-width:1100px;margin:0 auto;padding:18px 16px}
+  h1{margin:0 0 6px;font-size:1.4rem}
+  .sub{color:var(--muted);font-size:.92rem}
+  main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+  input[type="search"],button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:10px 12px}
+  input[type="file"]{color:var(--muted)}
+  button.primary{background:var(--accent);border-color:#0ea5a3;color:#072522}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;overflow:auto}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:0.95rem}
+  th{position:sticky;top:0;background:var(--card)}
+  tr:hover{background:#0f1520}
+  .kana{font-weight:700;font-size:1.1rem}
+  .rom{color:var(--muted);font-size:.9rem}
+  .help{color:var(--muted);font-size:.9rem;margin:10px 0 0}
+  .flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pill{border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted);font-size:.85rem}
+  .right{margin-left:auto}
+  .small{font-size:.85rem;color:var(--muted)}
+  .linklike{color:#7dd3fc;cursor:pointer;text-decoration:underline}
+  textarea{width:100%;min-height:80px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px}
+  dialog{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:14px;max-width:720px;width:92%}
+  dialog::backdrop{background:rgba(0,0,0,.5)}
+  .dlg-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>カタカムナ検索表（ことだま辞典）</h1>
+  <div class="sub">※解釈には流派差があります。ここでは<strong>編集可能な個人用辞典</strong>として使えます（ブラウザに自動保存）。</div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="検索（例：ア / a / ari / 「始まり」など）">
+    <button id="clear">クリア</button>
+    <span class="pill">件数: <span id="count">0</span></span>
+    <span class="right"></span>
+    <button id="exportBtn">エクスポート(JSON)</button>
+    <label class="pill">インポート <input id="importFile" type="file" accept="application/json"></label>
+    <button id="resetBtn">初期データに戻す</button>
+  </div>
+
+  <div class="card">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th style="width:90px">五十音</th>
+          <th style="width:120px">ローマ字</th>
+          <th>意味（編集可）</th>
+          <th style="width:120px">操作</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <p class="help">行をクリックすると<strong>意味</strong>を編集できます。変更は自動保存（localStorage）。「エクスポート」でバックアップ、「インポート」で復元できます。</p>
+</main>
+
+<dialog id="editDlg">
+  <form method="dialog">
+    <div class="dlg-head">
+      <div class="kana" id="dlgKana">ア</div>
+      <div class="rom" id="dlgRom">a</div>
+      <span class="pill" id="dlgIdx"></span>
+      <span class="right"></span>
+      <button value="cancel">閉じる</button>
+    </div>
+    <label class="small">意味（あなたの解釈を自由に記入）</label>
+    <textarea id="dlgMeaning" placeholder="例：始まり・根源・開く など"></textarea>
+    <div class="flex" style="margin-top:8px">
+      <button id="saveBtn" class="primary">保存</button>
+      <span class="small">保存すると表に反映されます（自動保存）。</span>
+    </div>
+  </form>
+</dialog>
+
+<script>
+/* ---- 初期データ（編集自由） ---- */
+const DEFAULT_DATA = [
+  ["ア","a",""],
+  ["イ","i",""],
+  ["ウ","u",""],
+  ["エ","e",""],
+  ["オ","o",""],
+  ["カ","ka",""],
+  ["キ","ki",""],
+  ["ク","ku",""],
+  ["ケ","ke",""],
+  ["コ","ko",""],
+  ["サ","sa",""],
+  ["シ","shi",""],
+  ["ス","su",""],
+  ["セ","se",""],
+  ["ソ","so",""],
+  ["タ","ta",""],
+  ["チ","chi",""],
+  ["ツ","tsu",""],
+  ["テ","te",""],
+  ["ト","to",""],
+  ["ナ","na",""],
+  ["ニ","ni",""],
+  ["ヌ","nu",""],
+  ["ネ","ne",""],
+  ["ノ","no",""],
+  ["ハ","ha",""],
+  ["ヒ","hi",""],
+  ["フ","fu",""],
+  ["ヘ","he",""],
+  ["ホ","ho",""],
+  ["マ","ma",""],
+  ["ミ","mi",""],
+  ["ム","mu",""],
+  ["メ","me",""],
+  ["モ","mo",""],
+  ["ヤ","ya",""],
+  ["ユ","yu",""],
+  ["ヨ","yo",""],
+  ["ラ","ra",""],
+  ["リ","ri",""],
+  ["ル","ru",""],
+  ["レ","re",""],
+  ["ロ","ro",""],
+  ["ワ","wa",""],
+  ["ヲ","wo",""],
+  ["ン","n",""]
+];
+
+/* ---- 永続化 ---- */
+const KEY = "katakamunaData.v1";
+function loadData(){
+  const raw = localStorage.getItem(KEY);
+  try{
+    const parsed = raw ? JSON.parse(raw) : null;
+    if(Array.isArray(parsed) && parsed.length) return parsed;
+  }catch(e){ console.warn(e); }
+  return DEFAULT_DATA.slice();
+}
+function saveData(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+
+/* ---- レンダリング＆検索 ---- */
+let DATA = loadData();
+
+const tbody = document.querySelector("#tbl tbody");
+const q = document.getElementById("q");
+const count = document.getElementById("count");
+const dlg = document.getElementById("editDlg");
+const dlgKana = document.getElementById("dlgKana");
+const dlgRom = document.getElementById("dlgRom");
+const dlgIdx = document.getElementById("dlgIdx");
+const dlgMeaning = document.getElementById("dlgMeaning");
+let currentIndex = -1;
+
+function render(filter=""){
+  tbody.innerHTML = "";
+  const f = filter.trim().toLowerCase();
+  let n=0;
+  DATA.forEach((row, i) => {
+    const [kana, rom, meaning] = row;
+    const hay = (kana + " " + rom + " " + meaning).toLowerCase();
+    if(!f || hay.includes(f)){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="kana">${kana}</td>
+        <td class="rom">${rom}</td>
+        <td>${meaning ? meaning.replace(/\n/g,"<br>") : '<span class="small" style="color:#7aa2c3">（未入力）</span>'}</td>
+        <td><button data-edit="${i}">編集</button></td>
+      `;
+      tr.addEventListener("click", (ev) => {
+        if(!(ev.target instanceof HTMLButtonElement)) openEditor(i);
+      });
+      tr.querySelector("button").addEventListener("click", () => openEditor(i));
+      tbody.appendChild(tr);
+      n++;
+    }
+  });
+  count.textContent = n;
+}
+
+function openEditor(i){
+  currentIndex = i;
+  const [kana, rom, meaning] = DATA[i];
+  dlgKana.textContent = kana;
+  dlgRom.textContent = rom;
+  dlgIdx.textContent = `#${i+1}`;
+  dlgMeaning.value = meaning || "";
+  dlg.showModal();
+}
+
+document.getElementById("saveBtn").addEventListener("click", (e)=>{
+  e.preventDefault();
+  if(currentIndex<0) return;
+  DATA[currentIndex][2] = dlgMeaning.value.trim();
+  saveData(DATA);
+  render(q.value);
+  dlg.close();
+});
+
+document.getElementById("clear").addEventListener("click", ()=>{ q.value=""; render(); });
+q.addEventListener("input", ()=> render(q.value));
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("初期データに戻しますか？（意味はすべて空に戻ります）")){
+    DATA = DEFAULT_DATA.slice();
+    saveData(DATA);
+    render(q.value);
+  }
+});
+
+document.getElementById("exportBtn").addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(DATA,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "katakamuna-data.json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("importFile").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const arr = JSON.parse(reader.result);
+      if(Array.isArray(arr) && arr.every(r=>Array.isArray(r) && r.length>=2)){
+        DATA = arr;
+        saveData(DATA);
+        render(q.value);
+      }else{
+        alert("JSON形式が不正です。");
+      }
+    }catch(err){
+      alert("読み込みに失敗しました。"); console.error(err);
+    }
+  };
+  reader.readAsText(file, "utf-8");
+});
+
+render();
+</script>
+</body>
+</html>
