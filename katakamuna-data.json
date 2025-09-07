@@ -1,242 +1,232 @@
 [
-  {
-    "kana": "ア",
-    "romaji": "a",
-    "meanings": []
-  },
-  {
-    "kana": "イ",
-    "romaji": "i",
-    "meanings": []
-  },
-  {
-    "kana": "ウ",
-    "romaji": "u",
-    "meanings": []
-  },
-  {
-    "kana": "エ",
-    "romaji": "e",
-    "meanings": []
-  },
-  {
-    "kana": "オ",
-    "romaji": "o",
-    "meanings": []
-  },
-  {
-    "kana": "カ",
-    "romaji": "ka",
-    "meanings": []
-  },
-  {
-    "kana": "キ",
-    "romaji": "ki",
-    "meanings": []
-  },
-  {
-    "kana": "ク",
-    "romaji": "ku",
-    "meanings": []
-  },
-  {
-    "kana": "ケ",
-    "romaji": "ke",
-    "meanings": []
-  },
-  {
-    "kana": "コ",
-    "romaji": "ko",
-    "meanings": []
-  },
-  {
-    "kana": "サ",
-    "romaji": "sa",
-    "meanings": []
-  },
-  {
-    "kana": "シ",
-    "romaji": "shi",
-    "meanings": []
-  },
-  {
-    "kana": "ス",
-    "romaji": "su",
-    "meanings": []
-  },
-  {
-    "kana": "セ",
-    "romaji": "se",
-    "meanings": []
-  },
-  {
-    "kana": "ソ",
-    "romaji": "so",
-    "meanings": []
-  },
-  {
-    "kana": "タ",
-    "romaji": "ta",
-    "meanings": []
-  },
-  {
-    "kana": "チ",
-    "romaji": "chi",
-    "meanings": []
-  },
-  {
-    "kana": "ツ",
-    "romaji": "tsu",
-    "meanings": []
-  },
-  {
-    "kana": "テ",
-    "romaji": "te",
-    "meanings": []
-  },
-  {
-    "kana": "ト",
-    "romaji": "to",
-    "meanings": []
-  },
-  {
-    "kana": "ナ",
-    "romaji": "na",
-    "meanings": []
-  },
-  {
-    "kana": "ニ",
-    "romaji": "ni",
-    "meanings": []
-  },
-  {
-    "kana": "ヌ",
-    "romaji": "nu",
-    "meanings": []
-  },
-  {
-    "kana": "ネ",
-    "romaji": "ne",
-    "meanings": []
-  },
-  {
-    "kana": "ノ",
-    "romaji": "no",
-    "meanings": []
-  },
-  {
-    "kana": "ハ",
-    "romaji": "ha",
-    "meanings": []
-  },
-  {
-    "kana": "ヒ",
-    "romaji": "hi",
-    "meanings": []
-  },
-  {
-    "kana": "フ",
-    "romaji": "fu",
-    "meanings": []
-  },
-  {
-    "kana": "ヘ",
-    "romaji": "he",
-    "meanings": []
-  },
-  {
-    "kana": "ホ",
-    "romaji": "ho",
-    "meanings": []
-  },
-  {
-    "kana": "マ",
-    "romaji": "ma",
-    "meanings": []
-  },
-  {
-    "kana": "ミ",
-    "romaji": "mi",
-    "meanings": []
-  },
-  {
-    "kana": "ム",
-    "romaji": "mu",
-    "meanings": []
-  },
-  {
-    "kana": "メ",
-    "romaji": "me",
-    "meanings": []
-  },
-  {
-    "kana": "モ",
-    "romaji": "mo",
-    "meanings": []
-  },
-  {
-    "kana": "ヤ",
-    "romaji": "ya",
-    "meanings": []
-  },
-  {
-    "kana": "ユ",
-    "romaji": "yu",
-    "meanings": []
-  },
-  {
-    "kana": "ヨ",
-    "romaji": "yo",
-    "meanings": []
-  },
-  {
-    "kana": "ラ",
-    "romaji": "ra",
-    "meanings": []
-  },
-  {
-    "kana": "リ",
-    "romaji": "ri",
-    "meanings": []
-  },
-  {
-    "kana": "ル",
-    "romaji": "ru",
-    "meanings": []
-  },
-  {
-    "kana": "レ",
-    "romaji": "re",
-    "meanings": []
-  },
-  {
-    "kana": "ロ",
-    "romaji": "ro",
-    "meanings": []
-  },
-  {
-    "kana": "ワ",
-    "romaji": "wa",
-    "meanings": []
-  },
-  {
-    "kana": "ヰ",
-    "romaji": "wi",
-    "meanings": []
-  },
-  {
-    "kana": "ヱ",
-    "romaji": "we",
-    "meanings": []
-  },
-  {
-    "kana": "ヲ",
-    "romaji": "wo",
-    "meanings": []
-  },
-  {
-    "kana": "ン",
-    "romaji": "n",
-    "meanings": []
-  }
+  [
+    "ア",
+    "a",
+    "あらゆるもの\n宇宙\n始元量\n左回り\n重なる"
+  ],
+  [
+    "イ",
+    "i",
+    "五\n現象物\n電気粒子\n最小単位\n電子の正反\nトコロの場\n影"
+  ],
+  [
+    "ウ",
+    "u",
+    "現象界・潜象界の界面\n生み出す\n転ぶ\n合わす"
+  ],
+  [
+    "エ",
+    "e",
+    "繁栄\n繁茂\n現象の方向\n伸ばす"
+  ],
+  [
+    "オ",
+    "o",
+    "奥深く\n広がっていく\n環境"
+  ],
+  [
+    "カ",
+    "ka",
+    "万物の根源\nアマ始元量\n生命根\n生命\n宇宙\nチカラ"
+  ],
+  [
+    "キ",
+    "ki",
+    "動き\n粒子\n対向発生"
+  ],
+  [
+    "ク",
+    "ku",
+    "自由に\n解く"
+  ],
+  [
+    "ケ",
+    "ke",
+    "分化性\n変化"
+  ],
+  [
+    "コ",
+    "ko",
+    "九\n繰り返し"
+  ],
+  [
+    "サ",
+    "sa",
+    "右回り\n差\n（渦の差、チカラの差）"
+  ],
+  [
+    "シ",
+    "shi",
+    "示す\n示し"
+  ],
+  [
+    "ス",
+    "su",
+    "進行\n進行中の思念"
+  ],
+  [
+    "セ",
+    "se",
+    "発揮\n発動しながら"
+  ],
+  [
+    "ソ",
+    "so",
+    "宇宙空間\n現象空間"
+  ],
+  [
+    "タ",
+    "ta",
+    "独立する\n生まれる\n発生する\n出る\n解き放つように出す"
+  ],
+  [
+    "チ",
+    "chi",
+    "持続的に\n持続\n小さな"
+  ],
+  [
+    "ツ",
+    "tsu",
+    "個々の\n換える"
+  ],
+  [
+    "テ",
+    "te",
+    "（ワから独立して正反に）出る\n関わる"
+  ],
+  [
+    "ト",
+    "to",
+    "十\n重合\n向い\n統合"
+  ],
+  [
+    "ナ",
+    "na",
+    "七\n何回も何回も\n変化\n核"
+  ],
+  [
+    "ニ",
+    "ni",
+    "生命活動\n存在\n「中和・安定・平衡」状態の存在"
+  ],
+  [
+    "ヌ",
+    "nu",
+    "潜象\n計測できない"
+  ],
+  [
+    "ネ",
+    "ne",
+    "根本\n充たす"
+  ],
+  [
+    "ノ",
+    "no",
+    "変遷\n進む方向\nすべき方向\n持続する\n新しい生命の発生"
+  ],
+  [
+    "ハ",
+    "ha",
+    "正反\n引き合う"
+  ],
+  [
+    "ヒ",
+    "hi",
+    "あらゆるものの根源\n始元\n根本\n右にも左にも\n渦巻けるサカの状態\n潜象の始元\n電気"
+  ],
+  [
+    "フ",
+    "fu",
+    "二\n潜象系\n対\n負\n増える\n磁気"
+  ],
+  [
+    "ヘ",
+    "he",
+    "潜象への方向\n方法\n方向"
+  ],
+  [
+    "ホ",
+    "ho",
+    "関わり\n親和"
+  ],
+  [
+    "マ",
+    "ma",
+    "現象\n宇宙球全体\n現象物各々\n受容\n発動する"
+  ],
+  [
+    "ミ",
+    "mi",
+    "三\n生命の実体\n潜象\n実質\n粒子"
+  ],
+  [
+    "ム",
+    "mu",
+    "六\n六方環境\n広がり"
+  ],
+  [
+    "メ",
+    "me",
+    "芽\n発生\n秘め\n（潜象から現象に）出る"
+  ],
+  [
+    "モ",
+    "mo",
+    "モヤッとした\n雲\n連なる"
+  ],
+  [
+    "ヤ",
+    "ya",
+    "八\n飽和\n還元\n極限"
+  ],
+  [
+    "ユ",
+    "yu",
+    "湧出する\n湧き出す"
+  ],
+  [
+    "ヨ",
+    "yo",
+    "四\n四相性\nトキの場\nトキ・トコロの場"
+  ],
+  [
+    "ラ",
+    "ra",
+    "現われる"
+  ],
+  [
+    "リ",
+    "ri",
+    "分離\n離れる\n繰り返し"
+  ],
+  [
+    "ル",
+    "ru",
+    "存在する"
+  ],
+  [
+    "レ",
+    "re",
+    "行動\n命令"
+  ],
+  [
+    "ロ",
+    "ro",
+    "集まる\nまとまる\n空間"
+  ],
+  [
+    "ワ",
+    "wa",
+    "円\n輪\n和\n調和\nコロイド状"
+  ],
+  [
+    "ヲ",
+    "wo",
+    "以て\n奥に出現する"
+  ],
+  [
+    "ン",
+    "n",
+    "念を押す\n大元"
+  ]
 ]
