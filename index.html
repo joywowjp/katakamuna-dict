@@ -1,257 +1,331 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>カタカムナ検索表（ことだま辞典）</title>
 <style>
-  :root{--bg:#0b0f14;--fg:#e6edf3;--muted:#9fb0c0;--card:#121821;--line:#1f2a36;--accent:#14b8a6}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",Meiryo,Roboto,"Noto Sans JP",sans-serif}
-  header{max-width:1100px;margin:0 auto;padding:18px 16px}
-  h1{margin:0 0 6px;font-size:1.4rem}
-  .sub{color:var(--muted);font-size:.92rem}
-  main{max-width:1100px;margin:0 auto;padding:0 16px 40px}
-  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
-  input[type="search"],button{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:10px 12px}
-  input[type="file"]{color:var(--muted)}
-  button.primary{background:var(--accent);border-color:#0ea5a3;color:#072522}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;overflow:auto}
-  table{width:100%;border-collapse:collapse}
-  th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:0.95rem}
-  th{position:sticky;top:0;background:var(--card)}
-  tr:hover{background:#0f1520}
-  .kana{font-weight:700;font-size:1.1rem}
-  .rom{color:var(--muted);font-size:.9rem}
-  .help{color:var(--muted);font-size:.9rem;margin:10px 0 0}
-  .flex{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .pill{border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted);font-size:.85rem}
-  .right{margin-left:auto}
-  .small{font-size:.85rem;color:var(--muted)}
-  .linklike{color:#7dd3fc;cursor:pointer;text-decoration:underline}
-  textarea{width:100%;min-height:80px;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:10px;padding:8px}
-  dialog{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:14px;max-width:720px;width:92%}
-  dialog::backdrop{background:rgba(0,0,0,.5)}
-  .dlg-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  :root{
+    --bg:#0f1115; --panel:#161a22; --text:#e6e8ef; --muted:#9aa3b2;
+    --primary:#4aa8ff; --accent:#22d3ee; --line:#243246; --btn:#1f2531;
+  }
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;}
+  .wrap{max-width:1100px;margin:28px auto;padding:0 16px;}
+  h1{font-size:22px;margin:0 0 14px}
+  .note{color:var(--muted);font-size:12px;margin-bottom:12px}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 16px}
+  input[type="search"]{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:8px;min-width:240px;outline:none}
+  .btn{background:var(--btn);border:1px solid var(--line);color:var(--text);padding:9px 12px;border-radius:8px;cursor:pointer}
+  .btn.primary{border-color:var(--primary);color:#fff;background:#2563eb}
+  .btn:hover{filter:brightness(1.08)}
+  .file{display:inline-block;position:relative}
+  .file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .count{margin-left:auto;color:var(--muted);font-size:12px}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{border-bottom:1px solid var(--line);padding:12px 14px;vertical-align:top}
+  th{background:#111827;text-align:left;color:#b8c0cc;font-weight:600}
+  tr:last-child td{border-bottom:none}
+  .kana{font-size:18px;font-weight:700}
+  .rom{color:var(--muted)}
+  .mean li{line-height:1.6}
+  .ops .btn{padding:6px 10px;font-size:13px}
+  .muted{color:var(--muted)}
+  /* 簡易モーダル */
+  dialog{border:none;border-radius:12px;background:#0f1522;color:var(--text);width:min(720px,90vw)}
+  dialog::backdrop{background:rgba(0,0,0,.55)}
+  .dlg-h{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:700}
+  .dlg-b{padding:14px 16px}
+  .dlg-f{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
+  textarea{width:100%;min-height:220px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);padding:10px 12px;outline:none}
+  .tips{font-size:12px;color:var(--muted);margin-top:6px}
 </style>
 </head>
 <body>
-<header>
+<div class="wrap">
   <h1>カタカムナ検索表（ことだま辞典）</h1>
-  <div class="sub">※解釈には流派差があります。ここでは<strong>編集可能な個人用辞典</strong>として使えます（ブラウザに自動保存）。</div>
-</header>
+  <div class="note">※解釈には流派差があります。ここでは <b>編集可能な個人用辞典</b> として使えます（ブラウザに自動保存）。別端末と共有したい場合は「エクスポート」した JSON をリポジトリの <code>katakamuna-data.json</code> に上書きし、他端末で「初期データに戻す」を押してください。</div>
 
-<main>
   <div class="toolbar">
-    <input id="q" type="search" placeholder="検索（例：ア / a / ari / 「始まり」など）">
-    <button id="clear">クリア</button>
-    <span class="pill">件数: <span id="count">0</span></span>
-    <span class="right"></span>
-    <button id="exportBtn">エクスポート(JSON)</button>
-    <label class="pill">インポート <input id="importFile" type="file" accept="application/json"></label>
-    <button id="resetBtn">初期データに戻す</button>
+    <input id="q" type="search" placeholder="検索（例：ア / a / ari）" />
+    <button id="clear" class="btn">クリア</button>
+
+    <span class="count" id="cnt"></span>
   </div>
 
-  <div class="card">
-    <table id="tbl">
-      <thead>
-        <tr>
-          <th style="width:90px">五十音</th>
-          <th style="width:120px">ローマ字</th>
-          <th>意味（編集可）</th>
-          <th style="width:120px">操作</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <div class="toolbar">
+    <button id="export" class="btn">エクスポート(JSON)</button>
+
+    <label class="file btn">
+      インポート
+      <input id="import" type="file" accept="application/json" />
+    </label>
+
+    <button id="resetBtn" class="btn">初期データに戻す</button>
   </div>
 
-  <p class="help">行をクリックすると<strong>意味</strong>を編集できます。変更は自動保存（localStorage）。「エクスポート」でバックアップ、「インポート」で復元できます。</p>
-</main>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:80px">五十音</th>
+        <th style="width:100px">ローマ字</th>
+        <th>意味（編集可）</th>
+        <th style="width:90px">操作</th>
+      </tr>
+    </thead>
+    <tbody id="tbl"></tbody>
+  </table>
+</div>
 
-<dialog id="editDlg">
-  <form method="dialog">
-    <div class="dlg-head">
-      <div class="kana" id="dlgKana">ア</div>
-      <div class="rom" id="dlgRom">a</div>
-      <span class="pill" id="dlgIdx"></span>
-      <span class="right"></span>
-      <button value="cancel">閉じる</button>
-    </div>
-    <label class="small">意味（あなたの解釈を自由に記入）</label>
-    <textarea id="dlgMeaning" placeholder="例：始まり・根源・開く など"></textarea>
-    <div class="flex" style="margin-top:8px">
-      <button id="saveBtn" class="primary">保存</button>
-      <span class="small">保存すると表に反映されます（自動保存）。</span>
-    </div>
-  </form>
+<!-- 簡易編集ダイアログ -->
+<dialog id="dlg">
+  <div class="dlg-h" id="dlg-title">編集</div>
+  <div class="dlg-b">
+    <textarea id="ta" spellcheck="false"></textarea>
+    <div class="tips">※ 1行につき1つの意味。空行は無視されます。</div>
+  </div>
+  <div class="dlg-f">
+    <button id="dlg-cancel" class="btn">キャンセル</button>
+    <button id="dlg-ok" class="btn primary">保存</button>
+  </div>
 </dialog>
 
 <script>
-/* ---- 初期データ（編集自由） ---- */
+/* =========================
+   データ構造
+   [{kana:'ア', romaji:'a', meanings:['…','…']}, …]
+   ========================= */
 const DEFAULT_DATA = [
-  ["ア","a",""],
-  ["イ","i",""],
-  ["ウ","u",""],
-  ["エ","e",""],
-  ["オ","o",""],
-  ["カ","ka",""],
-  ["キ","ki",""],
-  ["ク","ku",""],
-  ["ケ","ke",""],
-  ["コ","ko",""],
-  ["サ","sa",""],
-  ["シ","shi",""],
-  ["ス","su",""],
-  ["セ","se",""],
-  ["ソ","so",""],
-  ["タ","ta",""],
-  ["チ","chi",""],
-  ["ツ","tsu",""],
-  ["テ","te",""],
-  ["ト","to",""],
-  ["ナ","na",""],
-  ["ニ","ni",""],
-  ["ヌ","nu",""],
-  ["ネ","ne",""],
-  ["ノ","no",""],
-  ["ハ","ha",""],
-  ["ヒ","hi",""],
-  ["フ","fu",""],
-  ["ヘ","he",""],
-  ["ホ","ho",""],
-  ["マ","ma",""],
-  ["ミ","mi",""],
-  ["ム","mu",""],
-  ["メ","me",""],
-  ["モ","mo",""],
-  ["ヤ","ya",""],
-  ["ユ","yu",""],
-  ["ヨ","yo",""],
-  ["ラ","ra",""],
-  ["リ","ri",""],
-  ["ル","ru",""],
-  ["レ","re",""],
-  ["ロ","ro",""],
-  ["ワ","wa",""],
-  ["ヰ","wi",""],
-  ["ヱ","we",""],
-  ["ヲ","wo",""],
-  ["ン","n",""]
+  // ア行
+  {kana:'ア',romaji:'a',meanings:[]},
+  {kana:'イ',romaji:'i',meanings:[]},
+  {kana:'ウ',romaji:'u',meanings:[]},
+  {kana:'エ',romaji:'e',meanings:[]},
+  {kana:'オ',romaji:'o',meanings:[]},
+  // カ行
+  {kana:'カ',romaji:'ka',meanings:[]},
+  {kana:'キ',romaji:'ki',meanings:[]},
+  {kana:'ク',romaji:'ku',meanings:[]},
+  {kana:'ケ',romaji:'ke',meanings:[]},
+  {kana:'コ',romaji:'ko',meanings:[]},
+  // サ行
+  {kana:'サ',romaji:'sa',meanings:[]},
+  {kana:'シ',romaji:'si',meanings:[]},
+  {kana:'ス',romaji:'su',meanings:[]},
+  {kana:'セ',romaji:'se',meanings:[]},
+  {kana:'ソ',romaji:'so',meanings:[]},
+  // タ行
+  {kana:'タ',romaji:'ta',meanings:[]},
+  {kana:'チ',romaji:'ti',meanings:[]},
+  {kana:'ツ',romaji:'tu',meanings:[]},
+  {kana:'テ',romaji:'te',meanings:[]},
+  {kana:'ト',romaji:'to',meanings:[]},
+  // ナ行
+  {kana:'ナ',romaji:'na',meanings:[]},
+  {kana:'ニ',romaji:'ni',meanings:[]},
+  {kana:'ヌ',romaji:'nu',meanings:[]},
+  {kana:'ネ',romaji:'ne',meanings:[]},
+  {kana:'ノ',romaji:'no',meanings:[]},
+  // ハ行
+  {kana:'ハ',romaji:'ha',meanings:[]},
+  {kana:'ヒ',romaji:'hi',meanings:[]},
+  {kana:'フ',romaji:'hu',meanings:[]},
+  {kana:'ヘ',romaji:'he',meanings:[]},
+  {kana:'ホ',romaji:'ho',meanings:[]},
+  // マ行
+  {kana:'マ',romaji:'ma',meanings:[]},
+  {kana:'ミ',romaji:'mi',meanings:[]},
+  {kana:'ム',romaji:'mu',meanings:[]},
+  {kana:'メ',romaji:'me',meanings:[]},
+  {kana:'モ',romaji:'mo',meanings:[]},
+  // ヤ行
+  {kana:'ヤ',romaji:'ya',meanings:[]},
+  {kana:'ユ',romaji:'yu',meanings:[]},
+  {kana:'ヨ',romaji:'yo',meanings:[]},
+  // ラ行
+  {kana:'ラ',romaji:'ra',meanings:[]},
+  {kana:'リ',romaji:'ri',meanings:[]},
+  {kana:'ル',romaji:'ru',meanings:[]},
+  {kana:'レ',romaji:'re',meanings:[]},
+  {kana:'ロ',romaji:'ro',meanings:[]},
+  // ワ行（ヰ・ヱを追加）
+  {kana:'ワ',romaji:'wa',meanings:[]},
+  {kana:'ヰ',romaji:'wi',meanings:[]},  // 追加
+  {kana:'ヱ',romaji:'we',meanings:[]},  // 追加
+  {kana:'ヲ',romaji:'wo',meanings:[]},
+  {kana:'ン',romaji:'n',meanings:[]},
 ];
 
-/* ---- 永続化 ---- */
-const KEY = "katakamunaData.v1";
-function loadData(){
-  const raw = localStorage.getItem(KEY);
+const STORAGE_KEY = "katakamunaData.v1";
+
+function getLocal(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return null;
   try{
-    const parsed = raw ? JSON.parse(raw) : null;
-    if(Array.isArray(parsed) && parsed.length) return parsed;
-  }catch(e){ console.warn(e); }
-  return DEFAULT_DATA.slice();
+    const data = JSON.parse(raw);
+    return (Array.isArray(data) && data.length) ? data : null;
+  }catch(e){ return null; }
 }
-function saveData(arr){ localStorage.setItem(KEY, JSON.stringify(arr)); }
+function saveLocal(arr){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+}
 
-/* ---- レンダリング＆検索 ---- */
-let DATA = loadData();
+let DATA = [];
 
-const tbody = document.querySelector("#tbl tbody");
-const q = document.getElementById("q");
-const count = document.getElementById("count");
-const dlg = document.getElementById("editDlg");
-const dlgKana = document.getElementById("dlgKana");
-const dlgRom = document.getElementById("dlgRom");
-const dlgIdx = document.getElementById("dlgIdx");
-const dlgMeaning = document.getElementById("dlgMeaning");
-let currentIndex = -1;
-
-function render(filter=""){
-  tbody.innerHTML = "";
-  const f = filter.trim().toLowerCase();
-  let n=0;
-  DATA.forEach((row, i) => {
-    const [kana, rom, meaning] = row;
-    const hay = (kana + " " + rom + " " + meaning).toLowerCase();
-    if(!f || hay.includes(f)){
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td class="kana">${kana}</td>
-        <td class="rom">${rom}</td>
-        <td>${meaning ? meaning.replace(/\n/g,"<br>") : '<span class="small" style="color:#7aa2c3">（未入力）</span>'}</td>
-        <td><button data-edit="${i}">編集</button></td>
-      `;
-      tr.addEventListener("click", (ev) => {
-        if(!(ev.target instanceof HTMLButtonElement)) openEditor(i);
-      });
-      tr.querySelector("button").addEventListener("click", () => openEditor(i));
-      tbody.appendChild(tr);
-      n++;
+/* -------- リポジトリ JSON 読み込み（キャッシュ回避） -------- */
+async function fetchRepoJson(){
+  try{
+    const res = await fetch('katakamuna-data.json?ts=' + Date.now(), {cache: 'no-store'});
+    if(res.ok){
+      const arr = await res.json();
+      if(Array.isArray(arr) && arr.length) return arr;
     }
+  }catch(e){ /* ignore */ }
+  return null;
+}
+
+/* -------- 初期化：localStorage → repo JSON → default -------- */
+async function init(){
+  let data = getLocal();
+  if(!data) data = await fetchRepoJson();
+  if(!data) data = DEFAULT_DATA.slice(); // deep copy
+  DATA = data;
+  saveLocal(DATA);
+  render();
+}
+
+/* =========================
+   表描画＆検索
+   ========================= */
+const $q   = document.getElementById('q');
+const $tbl = document.getElementById('tbl');
+const $cnt = document.getElementById('cnt');
+
+function render(q=""){
+  const key = q.trim().toLowerCase();
+  $tbl.innerHTML = "";
+  let shown = 0;
+
+  DATA.forEach((row, idx)=>{
+    const hit = !key ||
+      row.kana.includes(key) ||
+      row.romaji.toLowerCase().includes(key) ||
+      row.meanings.join("\n").toLowerCase().includes(key);
+
+    if(!hit) return;
+
+    shown++;
+    const tr = document.createElement('tr');
+
+    const tdKana = document.createElement('td');
+    tdKana.innerHTML = `<div class="kana">${row.kana}</div>`;
+    tr.appendChild(tdKana);
+
+    const tdRom = document.createElement('td');
+    tdRom.innerHTML = `<div class="rom">${row.romaji}</div>`;
+    tr.appendChild(tdRom);
+
+    const tdMean = document.createElement('td');
+    tdMean.className = "mean";
+    if(row.meanings && row.meanings.length){
+      const ul = document.createElement('ul');
+      row.meanings.forEach(m=>{
+        const li = document.createElement('li'); li.textContent = m; ul.appendChild(li);
+      });
+      tdMean.appendChild(ul);
+    }else{
+      tdMean.innerHTML = `<span class="muted">(未入力)</span>`;
+    }
+    tr.appendChild(tdMean);
+
+    const tdOps = document.createElement('td');
+    tdOps.className = "ops";
+    const btn = document.createElement('button');
+    btn.className = "btn"; btn.textContent = "編集";
+    btn.addEventListener('click', ()=>openEditor(idx));
+    tdOps.appendChild(btn);
+    tr.appendChild(tdOps);
+
+    $tbl.appendChild(tr);
   });
-  count.textContent = n;
+
+  $cnt.textContent = `件数: ${shown}`;
 }
 
-function openEditor(i){
-  currentIndex = i;
-  const [kana, rom, meaning] = DATA[i];
-  dlgKana.textContent = kana;
-  dlgRom.textContent = rom;
-  dlgIdx.textContent = `#${i+1}`;
-  dlgMeaning.value = meaning || "";
-  dlg.showModal();
+/* =========================
+   エディタ（簡易ダイアログ）
+   ========================= */
+const $dlg = document.getElementById('dlg');
+const $dlgTitle = document.getElementById('dlg-title');
+const $ta  = document.getElementById('ta');
+const $ok  = document.getElementById('dlg-ok');
+const $cancel = document.getElementById('dlg-cancel');
+
+let editingIndex = -1;
+
+function openEditor(index){
+  editingIndex = index;
+  const row = DATA[index];
+  $dlgTitle.textContent = `「${row.kana} / ${row.romaji}」の意味を編集`;
+  $ta.value = (row.meanings || []).join("\n");
+  $dlg.showModal();
+  setTimeout(()=>{$ta.focus();$ta.selectionStart=$ta.value.length;$ta.selectionEnd=$ta.value.length;},0);
 }
 
-document.getElementById("saveBtn").addEventListener("click", (e)=>{
-  e.preventDefault();
-  if(currentIndex<0) return;
-  DATA[currentIndex][2] = dlgMeaning.value.trim();
-  saveData(DATA);
-  render(q.value);
-  dlg.close();
+$ok.addEventListener('click', ()=>{
+  if(editingIndex<0) return $dlg.close();
+  const lines = $ta.value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  DATA[editingIndex].meanings = lines;
+  saveLocal(DATA);
+  render($q.value);
+  $dlg.close();
+});
+$cancel.addEventListener('click', ()=> $dlg.close());
+
+/* =========================
+   操作：検索 / クリア / エクスポート / インポート / 初期化
+   ========================= */
+document.getElementById('clear').addEventListener('click', ()=>{
+  $q.value=""; render("");
+});
+$q.addEventListener('input', ()=> render($q.value));
+
+document.getElementById('export').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(DATA,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'katakamuna-data.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
 });
 
-document.getElementById("clear").addEventListener("click", ()=>{ q.value=""; render(); });
-q.addEventListener("input", ()=> render(q.value));
-
-document.getElementById("resetBtn").addEventListener("click", ()=>{
-  if(confirm("初期データに戻しますか？（意味はすべて空に戻ります）")){
-    DATA = DEFAULT_DATA.slice();
-    saveData(DATA);
-    render(q.value);
+document.getElementById('import').addEventListener('change', async (e)=>{
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const txt = await f.text();
+    const arr = JSON.parse(txt);
+    if(Array.isArray(arr) && arr.length){
+      DATA = arr; saveLocal(DATA); render($q.value);
+      alert('インポートしました。必要ならこの JSON をリポジトリにも上書きしてください。');
+    }else{
+      alert('JSON の形式が不正です。');
+    }
+  }catch(err){
+    alert('読み込みに失敗しました: '+err.message);
+  }finally{
+    e.target.value='';
   }
 });
 
-document.getElementById("exportBtn").addEventListener("click", ()=>{
-  const blob = new Blob([JSON.stringify(DATA,null,2)], {type:"application/json"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = "katakamuna-data.json";
-  document.body.appendChild(a); a.click(); a.remove();
-  URL.revokeObjectURL(url);
+/* 「初期データに戻す」= リポジトリ JSON の再読込（失敗時は DEFAULT） */
+document.getElementById('resetBtn').addEventListener('click', async ()=>{
+  if(!confirm('リポジトリ上の JSON を読み直します。編集中の内容は上書きされます。よろしいですか？')) return;
+  let fresh = await fetchRepoJson();
+  if(!fresh) fresh = DEFAULT_DATA.slice();
+  DATA = fresh; saveLocal(DATA); render($q.value);
 });
 
-document.getElementById("importFile").addEventListener("change", (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    try{
-      const arr = JSON.parse(reader.result);
-      if(Array.isArray(arr) && arr.every(r=>Array.isArray(r) && r.length>=2)){
-        DATA = arr;
-        saveData(DATA);
-        render(q.value);
-      }else{
-        alert("JSON形式が不正です。");
-      }
-    }catch(err){
-      alert("読み込みに失敗しました。"); console.error(err);
-    }
-  };
-  reader.readAsText(file, "utf-8");
-});
-
-render();
+/* 起動 */
+init();
 </script>
 </body>
 </html>
