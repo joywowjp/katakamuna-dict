@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カタカムナ検索表（ことだま辞典）</title>
+<style>
+  :root{
+    --bg:#0f1115; --card:#161923; --txt:#eaeef7; --muted:#9aa3b2; --line:#232836; --accent:#89e0ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg);color:var(--txt);}
+  header{padding:20px 16px;border-bottom:1px solid var(--line);}
+  h1{margin:0;font-size:20px}
+  .desc{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.6}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  input[type="text"]{flex:1 1 260px;background:#0d1016;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px 12px;outline:none;}
+  button{background:#1e2635;border:1px solid var(--line);color:var(--txt);padding:10px 12px;border-radius:10px;cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  main{padding:12px 12px 32px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden}
+  th,td{border-bottom:1px solid var(--line);padding:12px 10px;vertical-align:top}
+  th{text-align:left;color:var(--muted);font-weight:600;background:#141826;position:sticky;top:0}
+  tr:last-child td{border-bottom:none}
+  .badge{font-size:12px;color:var(--muted)}
+  .count{margin-left:8px;color:var(--muted);font-size:12px}
+  .edit-btn{padding:6px 10px;font-size:12px}
+  dialog::backdrop{background:rgba(0,0,0,.5)}
+  dialog{border:none;border-radius:12px;background:#101522;color:var(--txt);padding:0;max-width:560px;width:92vw}
+  .dlg-head{padding:14px 16px;border-bottom:1px solid var(--line);font-weight:700}
+  .dlg-body{padding:16px;display:grid;gap:10px}
+  textarea{width:100%;min-height:160px;background:#0d1016;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:10px;outline:none}
+  .dlg-foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<header>
+  <h1>カタカムナ検索表（ことだま辞典）<span class="count" id="count"></span></h1>
+  <p class="desc">※解釈には流派差があります。ここでは<b>編集可能な個人用辞典</b>として使えます（ブラウザに自動保存）。<br>
+  端末を変える／他者へ共有する場合は「エクスポート」→ 得られた JSON をリポジトリの <code>katakamuna-data.json</code> に置き、
+  このページの「初期データに戻す」で反映させてください。</p>
+  <div class="toolbar">
+    <input id="q" type="text" placeholder="検索（例：ア / a / ari）">
+    <button id="btnClear">クリア</button>
+    <button id="btnExport">エクスポート(JSON)</button>
+    <label><input id="file" type="file" accept="application/json" hidden><button id="btnImport">インポート</button></label>
+    <button id="btnReset">初期データに戻す</button>
+  </div>
+</header>
+
+<main>
+  <table id="tbl">
+    <thead><tr>
+      <th style="width:90px">五十音</th>
+      <th style="width:120px">ローマ字</th>
+      <th>意味（編集可）</th>
+      <th style="width:88px">操作</th>
+    </tr></thead>
+    <tbody></tbody>
+  </table>
+</main>
+
+<dialog id="dlg">
+  <div class="dlg-head" id="dlgTitle">編集</div>
+  <div class="dlg-body">
+    <div class="badge">改行ごとに 1 意味として保存されます。</div>
+    <textarea id="ta"></textarea>
+  </div>
+  <div class="dlg-foot">
+    <button id="btnCancel">キャンセル</button>
+    <button id="btnSave">保存</button>
+  </div>
+</dialog>
+
+<script>
+const STORAGE_KEY = 'katakamuna_dict_v2';
+let DATA = [];
+
+function isValidData(arr){
+  return Array.isArray(arr) && arr.length>0 && arr.every(o=>o && typeof o==='object' && 'kana' in o && 'romaji' in o && 'meanings' in o && Array.isArray(o.meanings));
+}
+
+function getLocal(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return null;
+  try{ const data = JSON.parse(raw); return isValidData(data) ? data : null; }catch(e){ return null; }
+}
+function setLocal(data){ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+async function fetchRepo(){ 
+  try{
+    const r = await fetch('katakamuna-data.json?ts='+Date.now(), {cache:'no-store'});
+    if(r.ok){ const j = await r.json(); if(isValidData(j)) return j; }
+  }catch(e){}
+  return null;
+}
+
+async function bootstrap(){
+  DATA = getLocal() || await fetchRepo() || [];
+  if(!isValidData(DATA)){
+    alert('初期データの読み込みに失敗しました。'); 
+    DATA = [];
+  }
+  setLocal(DATA);
+  render();
+}
+
+const $ = (s, p=document)=>p.querySelector(s);
+
+function render(list=DATA){
+  const q = $('#q').value.trim().toLowerCase();
+  const body = document.querySelector('#tbl tbody');
+  body.innerHTML = '';
+  let shown = 0;
+  list.forEach((row, idx)=>{
+    const hay = (row.kana + ' ' + row.romaji + ' ' + row.meanings.join(' ')).toLowerCase();
+    if(q && !hay.includes(q)) return;
+    const tr = document.createElement('tr');
+    const meaningsHtml = row.meanings.length ? row.meanings.map(m=>`<div class="mean-list-item">${m}</div>`).join('') : '<span class="badge">(未入力)</span>';
+    tr.innerHTML = `
+      <td>${row.kana}</td>
+      <td>${row.romaji}</td>
+      <td>${meaningsHtml}</td>
+      <td><button class="edit-btn" data-idx="${idx}">編集</button></td>
+    `;
+    body.appendChild(tr);
+    shown++;
+  });
+  document.getElementById('count').textContent = `（件数: ${shown}）`;
+}
+
+document.addEventListener('click', e=>{
+  const b = e.target.closest('.edit-btn');
+  if(!b) return;
+  const i = +b.dataset.idx;
+  openEditor(i);
+});
+
+let editingIndex = -1;
+function openEditor(i){
+  editingIndex = i;
+  document.getElementById('dlgTitle').textContent = `${DATA[i].kana} / ${DATA[i].romaji} を編集`;
+  document.getElementById('ta').value = DATA[i].meanings.join('\n');
+  document.getElementById('dlg').showModal();
+}
+document.getElementById('btnCancel').onclick = ()=> document.getElementById('dlg').close();
+document.getElementById('btnSave').onclick = ()=>{
+  const lines = document.getElementById('ta').value.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  DATA[editingIndex].meanings = lines;
+  setLocal(DATA);
+  document.getElementById('dlg').close();
+  render();
+};
+
+document.getElementById('q').addEventListener('input', ()=>render());
+document.getElementById('btnClear').onclick = ()=>{ document.getElementById('q').value=''; render(); };
+
+document.getElementById('btnExport').onclick = ()=>{
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'katakamuna-data.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+document.getElementById('btnImport').onclick = ()=> document.getElementById('file').click();
+document.getElementById('file').addEventListener('change', async (e)=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  try{
+    const text = await f.text();
+    const j = JSON.parse(text);
+    if(!isValidData(j)) throw new Error('形式不正');
+    DATA = j;
+    setLocal(DATA);
+    render();
+  }catch(err){
+    alert('読み込みに失敗しました：' + err.message);
+  }finally{
+    e.target.value = '';
+  }
+});
+
+document.getElementById('btnReset').onclick = async ()=>{
+  if(!confirm('リポジトリの JSON を読み直して初期化します。よろしいですか？')) return;
+  const j = await fetchRepo();
+  if(j){
+    DATA = j;
+    setLocal(DATA);
+    render();
+  }else{
+    alert('初期データの取得に失敗しました。');
+  }
+};
+
+bootstrap();
+</script>
+</body>
+</html>
